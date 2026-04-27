@@ -1,84 +1,547 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <title>Joel</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="utf-8">
+    <title>Ad Experience Verification</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style type="text/css">
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: transparent;
+            margin: 0;
+            padding: 0;
+            font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        }
 
-  <style type="text/css">
-    html,
-    body {
-      background: transparent;
-      margin: 0;
-      padding: 0;
-      font-family: sans-serif;
-    }
+        #overlay-container {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
 
-    #overlay-container {
-      width: 960px;
-      height: 540px;
-    }
+        .hidden {
+            display: none !important;
+        }
 
-    /* Your style here... (feel free to remove this example styling) */
-    #skip {
-      display: none; /* Hidden until ad starts */
-      position: absolute;
-      bottom: 60px;
-      right: 0;
-      padding: 10px 18px;
-      background: rgba(0, 0, 0, 0.6);
-      border: 1px solid black;
-      border-right-width: 0;
-      font-size: 1.2rem;
-      border-radius: 4px 0 0 4px;
-      color: white;
-      cursor: pointer;
-    }
-  </style>
+        .answer-choice[data-selected="true"] {
+            border-color: rgb(37 99 235);
+            background: rgb(239 246 255);
+            box-shadow: 0 0 0 3px rgb(191 219 254 / 0.75);
+        }
+
+        .survey-card {
+            animation: enter 180ms ease-out both;
+        }
+
+        .shake {
+            animation: shake 320ms ease-in-out both;
+        }
+
+        #survey-card {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow-wrap: anywhere;
+        }
+
+        #survey-body {
+            overflow-y: auto;
+            min-height: 0;
+            flex: 1 1 0;
+        }
+
+        .answer-choice {
+            min-height: 52px;
+        }
+
+        @media (max-width: 520px), (max-height: 430px) {
+            #status-chip {
+                left: 10px;
+                top: 10px;
+                padding: 5px 9px;
+                font-size: 11px;
+            }
+
+            #skip {
+                bottom: 14px;
+                min-width: 140px;
+                padding: 8px 12px;
+            }
+
+            #survey-card {
+                max-height: calc(100% - 8px);
+                border-radius: 14px;
+            }
+
+            #survey-header,
+            #survey-body,
+            #survey-footer {
+                padding: 10px 12px;
+            }
+
+            #survey-header .mt-4 {
+                margin-top: 8px;
+            }
+
+            #survey-title {
+                font-size: 16px;
+                line-height: 1.25;
+            }
+
+            #question-title {
+                font-size: 15px;
+                line-height: 1.3;
+            }
+
+            #question-hint,
+            #warning {
+                font-size: 12px;
+                line-height: 1.35;
+            }
+
+            #answers {
+                margin-top: 8px;
+                gap: 6px;
+            }
+
+            .answer-choice {
+                min-height: 40px;
+                padding: 7px 10px;
+                font-size: 12px;
+                line-height: 1.25;
+            }
+
+            #fine-print,
+            #reward-text {
+                display: none;
+            }
+        }
+
+        @keyframes enter {
+            from {
+                opacity: 0;
+                transform: translateY(10px) scale(0.98);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        @keyframes shake {
+            0%, 100% {
+                transform: translateX(0);
+            }
+            25% {
+                transform: translateX(-8px);
+            }
+            50% {
+                transform: translateX(7px);
+            }
+            75% {
+                transform: translateX(-4px);
+            }
+        }
+    </style>
 </head>
 
 <body>
-  <div id="overlay-container">
-    <!-- We've added a sample button. Feel free to remove it: -->
-    <button id="skip">
-      Skip Ad...
+<div id="overlay-container">
+    <div
+        id="status-chip"
+        class="hidden absolute left-4 top-4 rounded-full border border-white/20 bg-black/55 px-3 py-1.5 text-xs font-medium text-white shadow-lg backdrop-blur-md"
+    >
+        Sponsored content in progress
+    </div>
+
+    <button
+        id="skip"
+        type="button"
+        class="hidden pointer-events-auto absolute bottom-10 right-0 min-w-[160px] rounded-l-xl border border-r-0 border-white/20 bg-neutral-950/80 px-4 py-3 text-left text-sm font-semibold text-white shadow-2xl shadow-black/35 backdrop-blur-md transition hover:bg-neutral-900/95 disabled:cursor-not-allowed disabled:text-white/65"
+        disabled
+    >
+        <span id="skip-label" class="block">Skip ad in 5</span>
+        <span id="skip-subtitle" class="block text-[11px] font-normal text-white/60">Verification pending</span>
     </button>
-  </div>
 
-  <script type="text/javascript">
-    (function(window, document){
-      // This is how you tell the parent window that the ad was successfully skipped.
-      function adSuccess() {
-        window.top.postMessage({ type: 'success' }, '*');
-      }
+    <div id="survey-overlay"
+         class="hidden pointer-events-auto absolute inset-0 flex items-center justify-center bg-slate-950/60 p-3 backdrop-blur-sm sm:p-5">
+        <div id="intro-card"
+             class="survey-card w-full max-w-md overflow-hidden rounded-2xl border border-white/70 bg-white text-slate-950 shadow-2xl">
+            <div class="border-b border-slate-200 bg-slate-50 px-6 py-5">
+                <p class="text-xs font-semibold uppercase tracking-[0.18em] text-blue-700">Viewer Engagement Program</p>
+                <h1 class="mt-1 text-2xl font-semibold text-slate-950">You've been selected</h1>
+            </div>
+            <div class="space-y-4 px-6 py-5">
+                <p class="text-sm leading-6 text-slate-700">
+                    As a qualifying viewer, you have been invited to complete a brief sponsor feedback survey. Your
+                    responses contribute to ad relevance scoring and help improve the viewing experience across the
+                    platform.
+                </p>
+                <div class="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3">
+                    <p class="text-sm font-semibold text-emerald-800">Gift card reward &mdash; up to $75 value</p>
+                    <p class="mt-0.5 text-xs text-emerald-700">Eligible participants may receive an Updog Select gift
+                        card upon verified survey completion.</p>
+                </div>
+                <ul class="space-y-2 text-sm text-slate-600">
+                    <li class="flex items-start gap-2.5"><span
+                            class="mt-0.5 shrink-0 text-slate-400">&middot;</span><span>5 questions &mdash; estimated 2&ndash;3 minutes</span>
+                    </li>
+                    <li class="flex items-start gap-2.5"><span
+                            class="mt-0.5 shrink-0 text-slate-400">&middot;</span><span>Responses reviewed for quality and sincerity</span>
+                    </li>
+                    <li class="flex items-start gap-2.5"><span
+                            class="mt-0.5 shrink-0 text-slate-400">&middot;</span><span>Gift card issued pending sponsor approval</span>
+                    </li>
+                </ul>
+            </div>
+            <div class="flex flex-col gap-3 border-t border-slate-200 bg-white px-6 py-4 min-[520px]:flex-row min-[520px]:items-center min-[520px]:justify-between">
+                <p class="text-xs leading-5 text-slate-400">Eligibility determined at submission. Availability subject
+                    to inventory, regional restrictions, and response quality score.</p>
+                <button id="begin-survey" type="button"
+                        class="shrink-0 whitespace-nowrap rounded-lg bg-blue-600 px-5 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700">
+                    Begin Survey
+                </button>
+            </div>
+        </div>
 
-      const skipButton = document.getElementById('skip');
+        <section id="survey-card"
+                 class="survey-card w-full max-w-2xl overflow-hidden rounded-2xl border border-white/70 bg-white text-slate-950 shadow-2xl">
+            <div id="survey-header" class="shrink-0 border-b border-slate-200 bg-slate-50 px-6 py-4">
+                <div class="flex items-start justify-between gap-5">
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-[0.18em] text-blue-700">Viewer
+                            Verification</p>
+                        <h1 id="survey-title" class="mt-1 text-2xl font-semibold tracking-normal text-slate-950">
+                            Sponsored Content Survey</h1>
+                    </div>
+                    <div class="hidden shrink-0 rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700 min-[520px]:block">
+                        Incentive eligible
+                    </div>
+                </div>
+                <div class="mt-4 h-1.5 overflow-hidden rounded-full bg-slate-200">
+                    <div id="progress-bar"
+                         class="h-full w-0 rounded-full bg-blue-600 transition-all duration-300"></div>
+                </div>
+            </div>
 
-      // Listen for messages from the game shell
-      window.addEventListener('message', (event) => {
+            <div id="survey-body" class="px-6 gap-4 py-2">
+                <div class="mb-3 flex items-start gap-4 text-sm text-slate-500">
+                    <div id="question-count" class="shrink-0 whitespace-nowrap">Question 1 of 5</div>
+                    <div id="reward-text" class="min-w-0 text-right">Reward: Select participants may select a select
+                        gift card from our selection of gift cards
+                    </div>
+                </div>
+
+                <h2 id="question-title" class="text-xl font-semibold leading-snug text-slate-950"></h2>
+                <p id="question-hint" class="mt-2 text-sm text-slate-500"></p>
+
+                <div id="answers" class="mt-4 grid gap-2.5 min-[520px]:grid-cols-2"></div>
+
+                <div id="warning" class="mt-3 min-h-5 text-sm font-medium text-rose-600"></div>
+            </div>
+
+            <div id="survey-footer"
+                 class="shrink-0 flex flex-col gap-3 border-t border-slate-200 bg-white px-6 py-4 min-[520px]:flex-row min-[520px]:items-center min-[520px]:justify-between">
+                <p id="fine-print" class="text-xs leading-5 text-slate-400">
+                    Responses are shared with verified measurement partners. Completion does not guarantee skip
+                    eligibility. Reward subject to inventory and regional compliance.
+                </p>
+                <div class="flex shrink-0 justify-end gap-2">
+                    <button id="back" type="button"
+                            class="min-w-[72px] whitespace-nowrap rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-50">
+                        Back
+                    </button>
+                    <button id="next" type="button"
+                            class="min-w-[100px] whitespace-nowrap rounded-lg bg-blue-600 px-5 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-slate-300">
+                        Continue
+                    </button>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <div id="processing-overlay"
+         class="hidden pointer-events-auto absolute inset-0 flex items-center justify-center bg-slate-950/70 px-5 backdrop-blur-sm">
+        <div class="w-full max-w-sm rounded-2xl border border-white/10 bg-white p-6 text-center text-slate-950 shadow-2xl">
+            <div class="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-slate-200 border-t-blue-600"></div>
+            <h2 id="processing-title" class="mt-5 text-xl font-semibold">Authenticating viewer session</h2>
+            <p id="processing-copy" class="mt-2 text-sm leading-6 text-slate-500">Forwarding responses to measurement
+                partners...</p>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    console.log('ad overlay loaded');
+
+    function adSuccess() {
+        window.top.postMessage({type: 'success'}, '*');
+    }
+
+    const skipButton = document.getElementById('skip');
+    const skipLabel = document.getElementById('skip-label');
+    const skipSubtitle = document.getElementById('skip-subtitle');
+    const statusChip = document.getElementById('status-chip');
+    const surveyOverlay = document.getElementById('survey-overlay');
+    const surveyCard = document.querySelector('#survey-card');
+    const questionCount = document.getElementById('question-count');
+    const progressBar = document.getElementById('progress-bar');
+    const questionTitle = document.getElementById('question-title');
+    const questionHint = document.getElementById('question-hint');
+    const answersEl = document.getElementById('answers');
+    const warningEl = document.getElementById('warning');
+    const backButton = document.getElementById('back');
+    const nextButton = document.getElementById('next');
+    const processingOverlay = document.getElementById('processing-overlay');
+    const processingTitle = document.getElementById('processing-title');
+    const processingCopy = document.getElementById('processing-copy');
+    const introCard = document.getElementById('intro-card');
+    const beginButton = document.getElementById('begin-survey');
+
+    const questions = [
+        {
+            title: 'Would you recommend this advertisement to family and friends?',
+            hint: 'Sponsor brand-lift scoring requires a minimum affinity threshold to proceed.',
+            answers: ['Absolutely', 'To select family members', 'I need to see it again', 'I was not paying attention']
+        },
+        {
+            title: "What's Updog?",
+            hint: 'Brand recall verification is required. Incorrect responses may extend session duration.',
+            answers: ['A person who kisses their dog', 'Inverse downward-facing dog yoga pose', 'Not much, how about you?', 'A premium rewards network']
+        },
+        {
+            title: 'For skip eligibility purposes, how often would you prefer to see this ad?',
+            hint: 'This question uses normalized input mirroring for accessibility compliance. Values are adjusted on submission.',
+            inverted: true,
+            answers: ['Never again', 'Once per session', 'Two to three times', 'As frequently as possible']
+        },
+        {
+            title: 'Which activity would you prefer over continuing to watch this advertisement?',
+            hint: 'Fishing is a permitted response. Sincerity of answer is logged for compliance purposes.',
+            answers: ['Fishing', 'Reading a terms and conditions document', 'Watching this ad again voluntarily', 'Fishing while this ad plays in the background']
+        },
+        {
+            title: 'Select your reward preference for your complimentary Updog Select gift card.',
+            hint: 'Inventory is allocated in real time. Availability cannot be guaranteed after this screen.',
+            inverted: true,
+            answers: ['$5 Updog Dining credit', '$10 Updog Premium access', 'No reward, please just skip', 'Surprise me (non-binding)']
+        }
+    ];
+
+    var countdownTimer = null;
+    var currentQuestion = 0;
+    let countdown = 5;
+    let selections = new Array(questions.length).fill(null);
+    let validationAttempts = 0;
+
+    function show(el) {
+        el.classList.remove('hidden');
+    }
+
+    function hide(el) {
+        el.classList.add('hidden');
+    }
+
+    function resetCountdown() {
+        clearInterval(countdownTimer);
+        countdown = 5;
+        skipButton.disabled = true;
+        skipLabel.textContent = 'Skip ad in 5';
+        skipSubtitle.textContent = 'Verification pending';
+        skipButton.classList.remove('animate-pulse');
+    }
+
+    function startCountdown() {
+        resetCountdown();
+        show(skipButton);
+        show(statusChip);
+
+        countdownTimer = setInterval(() => {
+            countdown -= 1;
+            if (countdown > 0) {
+                skipLabel.textContent = `Skip ad in ${countdown}`;
+                skipSubtitle.textContent = countdown === 1 ? 'Almost available' : 'Verification pending';
+                return;
+            }
+            clearInterval(countdownTimer);
+            skipButton.disabled = false;
+            skipLabel.textContent = 'Skip Ad';
+            skipSubtitle.textContent = 'Sponsor verification required';
+            skipButton.classList.add('animate-pulse');
+        }, 1000);
+    }
+
+    function setWarning(message) {
+        warningEl.textContent = message;
+        if (!message) return;
+        // need to force reflow or the animation won't retrigger
+        surveyCard.classList.remove('shake');
+        void surveyCard.offsetWidth;
+        surveyCard.classList.add('shake');
+    }
+
+    function renderQuestion() {
+        const question = questions[currentQuestion];
+        const selected = selections[currentQuestion];
+        const progress = ((currentQuestion + 1) / questions.length) * 100;
+
+        questionCount.textContent = `Question ${currentQuestion + 1} of ${questions.length}`;
+        progressBar.style.width = `${progress}%`;
+        questionTitle.textContent = question.title;
+        questionHint.textContent = question.hint;
+        backButton.disabled = currentQuestion === 0;
+        backButton.classList.toggle('opacity-45', currentQuestion === 0);
+        nextButton.textContent = currentQuestion === questions.length - 1 ? 'Claim reward' : 'Continue';
+        nextButton.disabled = selected === null;
+        setWarning('');
+
+        answersEl.innerHTML = '';
+        question.answers.forEach((answer, index) => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'answer-choice rounded-lg border border-slate-200 bg-white px-3 py-2 text-left text-sm font-semibold leading-5 text-slate-800 shadow-sm transition hover:border-blue-300 hover:bg-blue-50';
+            btn.textContent = answer;
+            btn.dataset.index = index;
+            btn.dataset.selected = selected === index ? 'true' : 'false';
+            btn.addEventListener('click', () => selectAnswer(index));
+            answersEl.appendChild(btn);
+        });
+    }
+
+    function selectAnswer(clickedIndex) {
+        const question = questions[currentQuestion];
+        let selectedIndex = clickedIndex;
+
+        if (question.inverted) {
+            const max = question.answers.length - 1;
+            selectedIndex = max - clickedIndex;
+            if (selectedIndex !== clickedIndex) {
+                setWarning('Accessibility input mode active: your selection was normalized to the opposite end of the scale.');
+            }
+        } else {
+            setWarning('');
+        }
+
+        selections[currentQuestion] = selectedIndex;
+        // console.log('selections state:', selections);
+        nextButton.disabled = false;
+
+        document.querySelectorAll('.answer-choice').forEach(btn => {
+            btn.dataset.selected = Number(btn.dataset.index) === selectedIndex ? 'true' : 'false';
+        });
+    }
+
+    function openSurvey() {
+        window.top.postMessage({type: 'pause'}, '*');
+        hide(skipButton);
+        hide(statusChip);
+        currentQuestion = 0;
+        selections = new Array(questions.length).fill(null);
+        validationAttempts = 0;
+        show(introCard);
+        hide(surveyCard);
+        show(surveyOverlay);
+    }
+
+    beginButton.addEventListener('click', () => {
+        hide(introCard);
+        renderQuestion();
+        show(surveyCard);
+    });
+
+    function processReward() {
+        hide(surveyOverlay);
+        show(processingOverlay);
+
+        const steps = [
+            ['Authenticating viewer session', 'Forwarding responses to measurement partners...'],
+            ['Cross-referencing engagement score', 'Validating responses against brand-lift baseline...'],
+            ['Processing skip authorization', 'Applying sponsor gratitude offset and fishing compliance flag...']
+        ];
+
+        let step = 0;
+        processingTitle.textContent = steps[0][0];
+        processingCopy.textContent = steps[0][1];
+
+        const timer = setInterval(() => {
+            step++;
+            if (step < steps.length) {
+                processingTitle.textContent = steps[step][0];
+                processingCopy.textContent = steps[step][1];
+                return;
+            }
+            clearInterval(timer);
+            processingTitle.textContent = 'Submission received';
+            processingCopy.textContent = 'Your Updog Select gift card is pending indefinite review. Content will now resume.';
+            setTimeout(adSuccess, 1200);
+        }, 950);
+    }
+
+    window.addEventListener('message', (event) => {
         if (!event.data || !event.data.type) return;
 
         if (event.data.type === 'adStarted') {
-          // Show the skip button when the ad starts
-          skipButton.style.display = 'block';
+            startCountdown();
         }
 
-        // By default, if the user doesn't "skip" the ad before the video ends,
-        // we call fail to restart. You're welcome to replace this with a survey
-        // or other interaction instead (see examples/survey).
         if (event.data.type === 'adFinished') {
-          skipButton.style.display = 'none';
-          window.top.postMessage({ type: 'fail' }, '*');
+            clearInterval(countdownTimer);
+            skipButton.disabled = false;
+            skipLabel.textContent = 'Skip Ad';
+            skipSubtitle.textContent = 'Post-roll verification required';
+            show(skipButton);
+            show(statusChip);
+            statusChip.textContent = 'Sponsor verification pending';
         }
-      });
+    });
 
-      // Your ad overlay code goes here, we've added a simple example below:
-      skipButton.addEventListener('click', () => {
-        skipButton.style.display = 'none';
-        adSuccess();
-      });
+    skipButton.addEventListener('click', () => {
+        if (skipButton.disabled) return;
+        openSurvey();
+    });
 
-    })(window, document);
-  </script>
+    backButton.addEventListener('click', () => {
+        if (currentQuestion === 0) return;
+        currentQuestion--;
+        renderQuestion();
+    });
+
+    nextButton.addEventListener('click', () => {
+        if (selections[currentQuestion] === null) {
+            setWarning('Please select a response before continuing.');
+            return;
+        }
+
+        if (currentQuestion === 1 && selections[currentQuestion] !== 2) {
+            selections[currentQuestion] = null;
+            renderQuestion();
+            setWarning('Brand recall could not be verified. Please review and resubmit.');
+            return;
+        }
+
+        if (currentQuestion < questions.length - 1) {
+            currentQuestion++;
+            renderQuestion();
+            return;
+        }
+
+        validationAttempts++;
+        if (validationAttempts === 1 && selections[0] !== 0) {
+            currentQuestion = 0;
+            renderQuestion();
+            setWarning('Sponsor confidence score below the gift-card threshold. Please reconsider your response.');
+            return;
+        }
+
+        processReward();
+    });
+</script>
 </body>
 </html>
