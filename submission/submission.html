@@ -5,7 +5,7 @@
     <title>Ad Experience Verification</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <style type="text/css">
+    <style>
         html,
         body {
             width: 100%;
@@ -44,6 +44,7 @@
         }
 
         #survey-card {
+            max-height: calc(100svh - 2.5rem);
             height: 100%;
             display: flex;
             flex-direction: column;
@@ -58,6 +59,35 @@
 
         .answer-choice {
             min-height: 52px;
+        }
+
+        #listen-btn {
+            position: relative;
+            isolation: isolate;
+        }
+
+        #listen-btn::after {
+            content: "";
+            position: absolute;
+            inset: -5px;
+            z-index: -1;
+            border-radius: 999px;
+            background: rgb(37 99 235 / 0.16);
+            animation: listen-pulse 1500ms ease-in-out infinite;
+        }
+
+        .prompt-card {
+            animation: enter 160ms ease-out both;
+        }
+
+        .reward-card-img {
+            aspect-ratio: 16 / 10;
+            object-fit: contain;
+        }
+
+        .question-visual-img {
+            max-height: min(46svh, 360px);
+            object-fit: contain;
         }
 
         @media (max-width: 520px), (max-height: 430px) {
@@ -75,7 +105,7 @@
             }
 
             #survey-card {
-                max-height: calc(100% - 8px);
+                max-height: calc(100svh - 1.5rem);
                 border-radius: 14px;
             }
 
@@ -97,6 +127,12 @@
             #question-title {
                 font-size: 15px;
                 line-height: 1.3;
+            }
+
+            #listen-btn {
+                width: 100%;
+                justify-content: center;
+                padding: 8px 12px;
             }
 
             #question-hint,
@@ -148,6 +184,17 @@
                 transform: translateX(-4px);
             }
         }
+
+        @keyframes listen-pulse {
+            0%, 100% {
+                opacity: 0.35;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.8;
+                transform: scale(1.04);
+            }
+        }
     </style>
 </head>
 
@@ -173,35 +220,33 @@
     <div id="survey-overlay"
          class="hidden pointer-events-auto absolute inset-0 flex items-center justify-center bg-slate-950/60 p-3 backdrop-blur-sm sm:p-5">
         <div id="intro-card"
-             class="survey-card w-full max-w-md overflow-hidden rounded-2xl border border-white/70 bg-white text-slate-950 shadow-2xl">
-            <div class="border-b border-slate-200 bg-slate-50 px-6 py-5">
+             class="survey-card flex flex-col w-full max-w-md overflow-hidden rounded-2xl border border-white/70 bg-white text-slate-950 shadow-2xl max-h-[calc(100svh-1.5rem)]">
+            <div class="shrink-0 border-b border-slate-200 bg-slate-50 px-6 py-5">
                 <p class="text-xs font-semibold uppercase tracking-[0.18em] text-blue-700">Viewer Engagement Program</p>
-                <h1 class="mt-1 text-2xl font-semibold text-slate-950">You've been selected</h1>
+                <h1 class="mt-1 text-2xl font-semibold text-slate-950">You've been selected!</h1>
             </div>
-            <div class="space-y-4 px-6 py-5">
+            <div class="space-y-4 overflow-y-auto min-h-0 flex-1 px-6 py-5">
                 <p class="text-sm leading-6 text-slate-700">
-                    As a qualifying viewer, you have been invited to complete a brief sponsor feedback survey. Your
-                    responses contribute to ad relevance scoring and help improve the viewing experience across the
-                    platform.
+                    Complete this brief sponsor survey for a chance to pick a gift card reward. If reading feels like work, each question can be read aloud by a real human voice.
                 </p>
                 <div class="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3">
-                    <p class="text-sm font-semibold text-emerald-800">Gift card reward &mdash; up to $75 value</p>
-                    <p class="mt-0.5 text-xs text-emerald-700">Eligible participants may receive an Updog Select gift
-                        card upon verified survey completion.</p>
+                    <p class="text-sm font-semibold text-emerald-800">Gift card reward — up to $75 value</p>
+                    <p class="mt-0.5 text-xs text-emerald-700">Eligible participants may receive a gift
+                        card upon verified survey completion. Choices consist of Google Play, Updog, Olive Garden and more. </p>
                 </div>
                 <ul class="space-y-2 text-sm text-slate-600">
                     <li class="flex items-start gap-2.5"><span
-                            class="mt-0.5 shrink-0 text-slate-400">&middot;</span><span>5 questions &mdash; estimated 2&ndash;3 minutes</span>
+                            class="mt-0.5 shrink-0 text-slate-400">·</span><span>6 questions — estimated 2–3 minutes</span>
                     </li>
                     <li class="flex items-start gap-2.5"><span
-                            class="mt-0.5 shrink-0 text-slate-400">&middot;</span><span>Responses reviewed for quality and sincerity</span>
+                            class="mt-0.5 shrink-0 text-slate-400">·</span><span>Responses reviewed for quality and sincerity</span>
                     </li>
                     <li class="flex items-start gap-2.5"><span
-                            class="mt-0.5 shrink-0 text-slate-400">&middot;</span><span>Gift card issued pending sponsor approval</span>
+                            class="mt-0.5 shrink-0 text-slate-400">·</span><span>Gift card issued pending sponsor approval</span>
                     </li>
                 </ul>
             </div>
-            <div class="flex flex-col gap-3 border-t border-slate-200 bg-white px-6 py-4 min-[520px]:flex-row min-[520px]:items-center min-[520px]:justify-between">
+            <div class="shrink-0 flex flex-col gap-3 border-t border-slate-200 bg-white px-6 py-4 min-[520px]:flex-row min-[520px]:items-center min-[520px]:justify-between">
                 <p class="text-xs leading-5 text-slate-400">Eligibility determined at submission. Availability subject
                     to inventory, regional restrictions, and response quality score.</p>
                 <button id="begin-survey" type="button"
@@ -233,13 +278,24 @@
 
             <div id="survey-body" class="px-6 gap-4 py-2">
                 <div class="mb-3 flex items-start gap-4 text-sm text-slate-500">
-                    <div id="question-count" class="shrink-0 whitespace-nowrap">Question 1 of 5</div>
+                    <div id="question-count" class="shrink-0 whitespace-nowrap">Question 1 of 6</div>
                     <div id="reward-text" class="min-w-0 text-right">Reward: Select participants may select a select
                         gift card from our selection of gift cards
                     </div>
                 </div>
 
                 <h2 id="question-title" class="text-xl font-semibold leading-snug text-slate-950"></h2>
+                <div class="mt-2 flex items-center gap-2">
+                    <button id="listen-btn" type="button"
+                            class="flex items-center gap-2 rounded-full border-2 border-blue-500 bg-blue-600 px-4 py-2 text-sm font-bold text-white shadow-lg shadow-blue-600/25 transition hover:bg-blue-700 hover:border-blue-600">
+                        <span class="rounded-full bg-white/20 p-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-4 shrink-0">
+                            <path id="listen-icon-path" d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"/>
+                        </svg>
+                        </span>
+                        <span id="listen-label">Listen to this question</span>
+                    </button>
+                </div>
                 <p id="question-hint" class="mt-2 text-sm text-slate-500"></p>
 
                 <div id="answers" class="mt-4 grid gap-2.5 min-[520px]:grid-cols-2"></div>
@@ -250,7 +306,7 @@
             <div id="survey-footer"
                  class="shrink-0 flex flex-col gap-3 border-t border-slate-200 bg-white px-6 py-4 min-[520px]:flex-row min-[520px]:items-center min-[520px]:justify-between">
                 <p id="fine-print" class="text-xs leading-5 text-slate-400">
-                    Responses are shared with verified measurement partners. Completion does not guarantee skip
+                    Responses are shared with verified marketing partners. Completion does not guarantee skip
                     eligibility. Reward subject to inventory and regional compliance.
                 </p>
                 <div class="flex shrink-0 justify-end gap-2">
@@ -265,6 +321,127 @@
                 </div>
             </div>
         </section>
+
+        <div id="listen-prompt-overlay"
+             class="hidden absolute inset-0 z-20 flex items-center justify-center bg-slate-950/50 p-4 backdrop-blur-sm">
+            <div class="prompt-card w-full max-w-sm rounded-2xl border border-white/80 bg-white p-5 text-slate-950 shadow-2xl">
+                <p class="text-xs font-semibold uppercase tracking-[0.18em] text-blue-700">Accessibility Reminder</p>
+                <h2 class="mt-1 text-xl font-semibold">Did you know you can listen to this question?</h2>
+                <p class="mt-2 text-sm leading-6 text-slate-600">Our patented Human Voice Technology can read the question and every answer out loud before you commit to a response.</p>
+                <div id="listen-prompt-actions" class="mt-4 flex flex-col gap-2 min-[420px]:flex-row min-[420px]:justify-end">
+                    <button id="listen-prompt-skip" type="button"
+                            class="rounded-lg px-3 py-2 text-xs font-medium text-slate-400 transition hover:text-slate-500">
+                        Continue silently
+                    </button>
+                    <button id="listen-prompt-play" type="button"
+                            class="rounded-lg px-4 py-2 text-sm font-semibold transition">
+                        Click here to listen
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="question-visual-overlay"
+             class="hidden absolute inset-0 z-20 flex items-center justify-center bg-slate-950/55 p-4 backdrop-blur-sm">
+            <div class="prompt-card w-full max-w-md overflow-hidden rounded-2xl border border-white/80 bg-white text-slate-950 shadow-2xl">
+                <div class="border-b border-slate-200 bg-slate-50 px-5 py-4">
+                    <p class="text-xs font-semibold uppercase tracking-[0.18em] text-blue-700">Enhanced Experience</p>
+                    <h2 class="mt-1 text-xl font-semibold">Visual companion unlocked</h2>
+                </div>
+                <div class="space-y-4 p-5">
+                    <img id="question-visual-img" src="" alt="Question visual" class="question-visual-img w-full rounded-xl border border-slate-200 bg-slate-100">
+                    <p class="text-sm leading-6 text-slate-600">As part of our enhanced experience, we offer visuals to accompany our exciting response options.</p>
+                    <button id="question-visual-continue" type="button"
+                            class="w-full rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700">
+                        Continue to question
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="inventory-popup-overlay"
+             class="hidden absolute inset-0 z-20 flex items-center justify-center bg-slate-950/60 p-4 backdrop-blur-sm">
+            <div class="prompt-card w-full max-w-md overflow-hidden rounded-2xl border border-white/80 bg-white text-slate-950 shadow-2xl max-h-[calc(100svh-1.5rem)] flex flex-col">
+                <div class="shrink-0 border-b border-slate-200 bg-slate-50 px-5 py-4">
+                    <p class="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">Live Inventory Update</p>
+                    <h2 class="mt-1 text-xl font-semibold">Fresh reward stock detected</h2>
+                </div>
+                <div class="space-y-4 p-5 overflow-y-auto">
+                    <img src="card.png" alt="Reward card" class="reward-card-img w-full rounded-xl border border-slate-200 bg-slate-100 p-2">
+                    <p class="text-[11px] leading-4 text-slate-400">Disclaimer: Due to legal considerations, we can only show you this stock photo. We promise the real one is in stock for you.</p>
+                    <div class="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
+                        <p class="text-sm font-semibold text-amber-900">We've just gotten this in stock for the next user to complete our survey. Hurry!</p>
+                    </div>
+                    <button id="inventory-popup-continue" type="button"
+                            class="w-full rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700">
+                        Secure my place in line
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="restart-alert-overlay"
+             class="hidden absolute inset-0 z-20 flex items-center justify-center bg-slate-950/60 p-4 backdrop-blur-sm">
+            <div class="prompt-card w-full max-w-sm overflow-hidden rounded-2xl border border-white/80 bg-white text-slate-950 shadow-2xl">
+                <div class="border-b border-slate-200 bg-rose-50 px-5 py-4">
+                    <p class="text-xs font-semibold uppercase tracking-[0.18em] text-rose-700">Quality Review Alert</p>
+                    <h2 class="mt-1 text-xl font-semibold">Response confidence too low</h2>
+                </div>
+                <div class="space-y-4 p-5">
+                    <p class="text-sm leading-6 text-slate-600">Our sponsor sincerity system could not verify your reward eligibility. For accuracy, the survey has been reset to question 1.</p>
+                    <button id="restart-alert-continue" type="button"
+                            class="w-full rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700">
+                        Reconsider my answers
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="reward-form-overlay"
+         class="hidden pointer-events-auto absolute inset-0 flex items-center justify-center bg-slate-950/70 px-5 backdrop-blur-sm">
+        <div class="w-full max-w-sm overflow-y-auto rounded-2xl border border-white/10 bg-white p-6 text-slate-950 shadow-2xl max-h-[calc(100svh-2.5rem)]">
+            <div class="mb-5 border-b border-slate-100 pb-4">
+                <p class="text-xs font-semibold uppercase tracking-[0.18em] text-blue-700">Gift Card Fulfillment</p>
+                <h2 class="mt-1 text-xl font-semibold">Almost there!</h2>
+                <p class="mt-1.5 text-sm leading-5 text-slate-500">Enter your contact details below to receive your gift card. Our fulfillment partner will reach out within 3–5 business days.</p>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label class="mb-1.5 block text-xs font-medium text-slate-700">Full Name <span class="text-rose-500">*</span></label>
+                    <div style="cursor:text">
+                        <input type="text" placeholder="Enter your full name" autocomplete="off"
+                               class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 placeholder-slate-400"
+                               tabindex="-1" readonly style="pointer-events:none;user-select:none">
+                    </div>
+                </div>
+                <div>
+                    <label class="mb-1.5 block text-xs font-medium text-slate-700">Email Address <span class="text-rose-500">*</span></label>
+                    <div style="cursor:text">
+                        <input type="email" placeholder="you@example.com" autocomplete="off"
+                               class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 placeholder-slate-400"
+                               tabindex="-1" readonly style="pointer-events:none;user-select:none">
+                    </div>
+                </div>
+                <div>
+                    <label class="mb-1.5 block text-xs font-medium text-slate-700">Phone Number <span class="font-normal text-slate-400">(optional)</span></label>
+                    <div style="cursor:text">
+                        <input type="tel" placeholder="+1 (555) 000-0000" autocomplete="off"
+                               class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 placeholder-slate-400"
+                               tabindex="-1" readonly style="pointer-events:none;user-select:none">
+                    </div>
+                </div>
+            </div>
+            <p class="mt-3 text-xs leading-4 text-slate-400">By submitting, you consent to our marketing partners contacting you regarding your reward. Information shared with the verified sponsor network.</p>
+            <button id="submit-form-btn" type="button"
+                    class="mt-5 w-full rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-slate-300">
+                Submit My Details
+            </button>
+            <button id="final-skip-btn" type="button"
+                    class="mt-2 w-full rounded-lg border border-slate-300 px-5 py-2.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:border-slate-200 disabled:text-slate-300">
+                Skip ad in 7
+            </button>
+        </div>
     </div>
 
     <div id="processing-overlay"
@@ -272,19 +449,13 @@
         <div class="w-full max-w-sm rounded-2xl border border-white/10 bg-white p-6 text-center text-slate-950 shadow-2xl">
             <div class="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-slate-200 border-t-blue-600"></div>
             <h2 id="processing-title" class="mt-5 text-xl font-semibold">Authenticating viewer session</h2>
-            <p id="processing-copy" class="mt-2 text-sm leading-6 text-slate-500">Forwarding responses to measurement
+            <p id="processing-copy" class="mt-2 text-sm leading-6 text-slate-500">Forwarding responses to marketing
                 partners...</p>
         </div>
     </div>
 </div>
 
-<script type="text/javascript">
-    console.log('ad overlay loaded');
-
-    function adSuccess() {
-        window.top.postMessage({type: 'success'}, '*');
-    }
-
+<script>
     const skipButton = document.getElementById('skip');
     const skipLabel = document.getElementById('skip-label');
     const skipSubtitle = document.getElementById('skip-subtitle');
@@ -304,12 +475,34 @@
     const processingCopy = document.getElementById('processing-copy');
     const introCard = document.getElementById('intro-card');
     const beginButton = document.getElementById('begin-survey');
+    const rewardFormOverlay = document.getElementById('reward-form-overlay');
+    const submitFormBtn = document.getElementById('submit-form-btn');
+    const finalSkipBtn = document.getElementById('final-skip-btn');
+    const listenBtn = document.getElementById('listen-btn');
+    const listenLabel = document.getElementById('listen-label');
+    const listenIconPath = document.getElementById('listen-icon-path');
+    const listenPromptOverlay = document.getElementById('listen-prompt-overlay');
+    const listenPromptActions = document.getElementById('listen-prompt-actions');
+    const listenPromptPlay = document.getElementById('listen-prompt-play');
+    const listenPromptSkip = document.getElementById('listen-prompt-skip');
+    const questionVisualOverlay = document.getElementById('question-visual-overlay');
+    const questionVisualImg = document.getElementById('question-visual-img');
+    const questionVisualContinue = document.getElementById('question-visual-continue');
+    const inventoryPopupOverlay = document.getElementById('inventory-popup-overlay');
+    const inventoryPopupContinue = document.getElementById('inventory-popup-continue');
+    const restartAlertOverlay = document.getElementById('restart-alert-overlay');
+    const restartAlertContinue = document.getElementById('restart-alert-continue');
 
     const questions = [
         {
             title: 'Would you recommend this advertisement to family and friends?',
             hint: 'Sponsor brand-lift scoring requires a minimum affinity threshold to proceed.',
-            answers: ['Absolutely', 'To select family members', 'I need to see it again', 'I was not paying attention']
+            answers: ['Absolutely', 'To select family members', 'I hated it', 'I was not paying attention']
+        },
+        {
+            title: 'Which of the following do you prefer?',
+            hint: 'Though we try to take your choices into account, answering this question does not guarantee seeing ads about your favorite condiment.',
+            answers: ['Mayonnaise', 'Cold ketchup', 'Mustard', 'Room temperature ketchup']
         },
         {
             title: "What's Updog?",
@@ -317,29 +510,40 @@
             answers: ['A person who kisses their dog', 'Inverse downward-facing dog yoga pose', 'Not much, how about you?', 'A premium rewards network']
         },
         {
-            title: 'For skip eligibility purposes, how often would you prefer to see this ad?',
-            hint: 'This question uses normalized input mirroring for accessibility compliance. Values are adjusted on submission.',
-            inverted: true,
-            answers: ['Never again', 'Once per session', 'Two to three times', 'As frequently as possible']
-        },
-        {
             title: 'Which activity would you prefer over continuing to watch this advertisement?',
             hint: 'Fishing is a permitted response. Sincerity of answer is logged for compliance purposes.',
-            answers: ['Fishing', 'Reading a terms and conditions document', 'Watching this ad again voluntarily', 'Fishing while this ad plays in the background']
+            answers: ['Fishing', 'Reading a terms and conditions document', 'Looking up fishing metaphors and what they mean', 'Fishing while this ad plays in the background']
         },
         {
-            title: 'Select your reward preference for your complimentary Updog Select gift card.',
+            title: 'What is your favorite food?',
+            hint: 'Judgment about your food choices may or may not be made by our brand partners. We cannot take responsibility for your choices',
+            answers: ['Fish and chips', 'Pizza with pineapple', 'Beans on toast', 'Pasta']
+        },
+        {
+            title: 'If the results show you are eligible for a gift card, which one would you prefer?.',
             hint: 'Inventory is allocated in real time. Availability cannot be guaranteed after this screen.',
-            inverted: true,
-            answers: ['$5 Updog Dining credit', '$10 Updog Premium access', 'No reward, please just skip', 'Surprise me (non-binding)']
+            answers: ['Olive Garden (unlimited breadsticks!)', '$10 Updog Premium access', 'No reward, please just skip', '$500 Google Play card']
         }
     ];
 
-    var countdownTimer = null;
-    var currentQuestion = 0;
+    let countdownTimer = null;
+    let currentQuestion = 0;
     let countdown = 5;
     let selections = new Array(questions.length).fill(null);
     let validationAttempts = 0;
+    let listenPromptsSeen = new Array(questions.length).fill(false);
+    let pendingAnswerIndex = null;
+    let inventoryPopupSeen = false;
+    let finalSkipTimer = null;
+    let finalSkipCountdown = 7;
+    const questionVisuals = [
+        null,
+        'images/q2.jpg',
+        'images/q3.jpg',
+        'images/q4.jpg',
+        'images/q5.jpg',
+        'images/q6.jpg'
+    ];
 
     function show(el) {
         el.classList.remove('hidden');
@@ -387,7 +591,10 @@
         surveyCard.classList.add('shake');
     }
 
-    function renderQuestion() {
+    function renderQuestion(options = {}) {
+        stopSpeech();
+        hide(listenPromptOverlay);
+        hide(questionVisualOverlay);
         const question = questions[currentQuestion];
         const selected = selections[currentQuestion];
         const progress = ((currentQuestion + 1) / questions.length) * 100;
@@ -399,7 +606,8 @@
         backButton.disabled = currentQuestion === 0;
         backButton.classList.toggle('opacity-45', currentQuestion === 0);
         nextButton.textContent = currentQuestion === questions.length - 1 ? 'Claim reward' : 'Continue';
-        nextButton.disabled = selected === null;
+        nextButton.dataset.selectionReady = selected === null ? 'false' : 'true';
+        updateNextButtonState();
         setWarning('');
 
         answersEl.innerHTML = '';
@@ -410,9 +618,21 @@
             btn.textContent = answer;
             btn.dataset.index = index;
             btn.dataset.selected = selected === index ? 'true' : 'false';
-            btn.addEventListener('click', () => selectAnswer(index));
+            btn.addEventListener('click', () => selectAnswerWithPrompt(index));
             answersEl.appendChild(btn);
         });
+
+        if (!options.suppressVisual) {
+            showQuestionVisual();
+        }
+    }
+
+    function showQuestionVisual() {
+        const visualSrc = questionVisuals[currentQuestion];
+        if (!visualSrc) return;
+
+        questionVisualImg.src = visualSrc;
+        show(questionVisualOverlay);
     }
 
     function selectAnswer(clickedIndex) {
@@ -430,8 +650,8 @@
         }
 
         selections[currentQuestion] = selectedIndex;
-        // console.log('selections state:', selections);
-        nextButton.disabled = false;
+        nextButton.dataset.selectionReady = 'true';
+        updateNextButtonState();
 
         document.querySelectorAll('.answer-choice').forEach(btn => {
             btn.dataset.selected = Number(btn.dataset.index) === selectedIndex ? 'true' : 'false';
@@ -445,8 +665,15 @@
         currentQuestion = 0;
         selections = new Array(questions.length).fill(null);
         validationAttempts = 0;
+        listenPromptsSeen = new Array(questions.length).fill(false);
+        pendingAnswerIndex = null;
+        inventoryPopupSeen = false;
         show(introCard);
         hide(surveyCard);
+        hide(listenPromptOverlay);
+        hide(questionVisualOverlay);
+        hide(inventoryPopupOverlay);
+        hide(restartAlertOverlay);
         show(surveyOverlay);
     }
 
@@ -479,8 +706,8 @@
             }
             clearInterval(timer);
             processingTitle.textContent = 'Submission received';
-            processingCopy.textContent = 'Your Updog Select gift card is pending indefinite review. Content will now resume.';
-            setTimeout(adSuccess, 1200);
+            processingCopy.textContent = 'Your gift card of choice is pending indefinite review. Content will now resume.';
+            setTimeout(() => window.top.postMessage({type: 'success'}, '*'), 1200);
         }, 950);
     }
 
@@ -514,6 +741,11 @@
     });
 
     nextButton.addEventListener('click', () => {
+        if (currentAudio) {
+            setWarning('Please finish listening before continuing.');
+            return;
+        }
+
         if (selections[currentQuestion] === null) {
             setWarning('Please select a response before continuing.');
             return;
@@ -527,6 +759,12 @@
         }
 
         if (currentQuestion < questions.length - 1) {
+            if (currentQuestion === questions.length - 2 && !inventoryPopupSeen) {
+                inventoryPopupSeen = true;
+                stopSpeech();
+                show(inventoryPopupOverlay);
+                return;
+            }
             currentQuestion++;
             renderQuestion();
             return;
@@ -535,12 +773,160 @@
         validationAttempts++;
         if (validationAttempts === 1 && selections[0] !== 0) {
             currentQuestion = 0;
-            renderQuestion();
-            setWarning('Sponsor confidence score below the gift-card threshold. Please reconsider your response.');
+            selections = new Array(questions.length).fill(null);
+            listenPromptsSeen = new Array(questions.length).fill(false);
+            pendingAnswerIndex = null;
+            renderQuestion({suppressVisual: true});
+            show(restartAlertOverlay);
             return;
         }
 
-        processReward();
+        showRewardForm();
+    });
+
+    const playIcon = 'M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z';
+    const stopIcon = 'M5.75 3A2.75 2.75 0 003 5.75v8.5A2.75 2.75 0 005.75 17h8.5A2.75 2.75 0 0017 14.25v-8.5A2.75 2.75 0 0014.25 3h-8.5z';
+    const audioFiles = questions.map((_, i) => new Audio(`audio/q${i + 1}.m4a`));
+    let currentAudio = null;
+
+    function updateNextButtonState() {
+        nextButton.disabled = currentAudio !== null || nextButton.dataset.selectionReady !== 'true';
+    }
+
+    function stopSpeech() {
+        if (currentAudio) {
+            currentAudio.pause();
+            currentAudio.currentTime = 0;
+            currentAudio = null;
+        }
+        listenLabel.textContent = 'Listen to this question';
+        listenIconPath.setAttribute('d', playIcon);
+        listenBtn.classList.remove('bg-emerald-600', 'border-emerald-500', 'shadow-emerald-600/25');
+        listenBtn.classList.add('bg-blue-600', 'border-blue-500', 'shadow-blue-600/25');
+        listenBtn.disabled = false;
+        updateNextButtonState();
+    }
+
+    function readCurrentQuestion() {
+        if (currentAudio) return;
+        const audio = audioFiles[currentQuestion];
+        audio.currentTime = 0;
+        audio.onended = stopSpeech;
+        audio.onerror = stopSpeech;
+        currentAudio = audio;
+        listenLabel.textContent = 'Listening...';
+        listenIconPath.setAttribute('d', stopIcon);
+        listenBtn.classList.remove('bg-blue-600', 'border-blue-500', 'shadow-blue-600/25');
+        listenBtn.classList.add('bg-emerald-600', 'border-emerald-500', 'shadow-emerald-600/25');
+        listenBtn.disabled = true;
+        updateNextButtonState();
+        audio.play().catch(stopSpeech);
+    }
+
+    listenBtn.addEventListener('click', readCurrentQuestion);
+
+    function selectAnswerWithPrompt(index) {
+        if (!listenPromptsSeen[currentQuestion]) {
+            listenPromptsSeen[currentQuestion] = true;
+            pendingAnswerIndex = index;
+            stopSpeech();
+            randomizeListenPromptActions();
+            show(listenPromptOverlay);
+            return;
+        }
+
+        selectAnswer(index);
+    }
+
+    function randomizeListenPromptActions() {
+        const btns = [listenPromptPlay, listenPromptSkip];
+        if (Math.random() > 0.5) btns.reverse();
+        btns.forEach(b => listenPromptActions.appendChild(b));
+
+        const [primary, secondary] = Math.random() > 0.5
+            ? [listenPromptPlay, listenPromptSkip]
+            : [listenPromptSkip, listenPromptPlay];
+        primary.className = 'rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700';
+        secondary.className = 'rounded-lg px-3 py-2 text-xs font-medium text-slate-400 transition hover:text-slate-500';
+    }
+
+    listenPromptPlay.addEventListener('click', () => {
+        hide(listenPromptOverlay);
+        readCurrentQuestion();
+    });
+
+    listenPromptSkip.addEventListener('click', () => {
+        hide(listenPromptOverlay);
+        if (pendingAnswerIndex !== null) {
+            const answerIndex = pendingAnswerIndex;
+            pendingAnswerIndex = null;
+            selectAnswer(answerIndex);
+        }
+    });
+
+    questionVisualImg.addEventListener('error', () => {
+        hide(questionVisualOverlay);
+    });
+
+    questionVisualContinue.addEventListener('click', () => {
+        hide(questionVisualOverlay);
+    });
+
+    inventoryPopupContinue.addEventListener('click', () => {
+        hide(inventoryPopupOverlay);
+        currentQuestion++;
+        renderQuestion();
+    });
+
+    restartAlertContinue.addEventListener('click', () => {
+        hide(restartAlertOverlay);
+    });
+
+    document.querySelectorAll('#reward-form-overlay input').forEach(input => {
+        input.addEventListener('focus', () => input.blur());
+        input.addEventListener('keydown', e => e.preventDefault());
+    });
+
+    function showRewardForm() {
+        stopSpeech();
+        hide(surveyOverlay);
+        resetFinalSkipButton();
+        show(rewardFormOverlay);
+    }
+
+    function resetFinalSkipButton() {
+        clearInterval(finalSkipTimer);
+        finalSkipCountdown = 7;
+        finalSkipBtn.disabled = true;
+        finalSkipBtn.textContent = 'Skip ad in 7';
+
+        finalSkipTimer = setInterval(() => {
+            finalSkipCountdown--;
+            if (finalSkipCountdown > 0) {
+                finalSkipBtn.textContent = `Skip ad in ${finalSkipCountdown}`;
+                return;
+            }
+
+            clearInterval(finalSkipTimer);
+            finalSkipBtn.disabled = false;
+            finalSkipBtn.textContent = 'Skip Ad';
+        }, 1000);
+    }
+
+    submitFormBtn.addEventListener('click', () => {
+        submitFormBtn.textContent = 'Submitting…';
+        submitFormBtn.disabled = true;
+        clearInterval(finalSkipTimer);
+        setTimeout(() => {
+            hide(rewardFormOverlay);
+            processReward();
+        }, 800);
+    });
+
+    finalSkipBtn.addEventListener('click', () => {
+        if (finalSkipBtn.disabled) return;
+        clearInterval(finalSkipTimer);
+        window.top.postMessage({type: 'success'}, '*');
     });
 </script>
 </body>
